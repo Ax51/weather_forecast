@@ -1,224 +1,123 @@
 "use strict";
+class ShowWeather extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      weather: []
+    };
+  }
+  componentDidMount() {
+    fetch("https://api.weatherbit.io/v2.0/forecast/daily?lang=ru&days=10&city=Moscow,RU&key=b3e5096601344bde837e2aa622e5cb61")
+      .then(res => res.json())
+      .then(json => this.setState({ weather: json.data }))
+  }
+  showWeather() {
+    if (this.state.weather.length > 0) {
+      return (
+        this.state.weather?.map((item, num) => {
+          let { 
+            temp,
+            pop: rainChance,
+            pres,
+            vis: visibility,
+            valid_date: date,
+            weather: {code: weatherCode}} = item;
+          let dayName,
+            weatherType;
 
-function RenderFuncWeather() {
-    let weatherArr;
-    async function getWeather() {
-        let responce = await fetch("https://api.weatherbit.io/v2.0/forecast/daily?lang=ru&days=10&city=Moscow,RU&key=b3e5096601344bde837e2aa622e5cb61")
-        let weather = await responce.json();
-        return weatherArr = weather.data.map(i =>
-            <div className="day">
-                <div className="day-of-week">Wed</div>
-                <div className="date">8</div>
+          temp = Math.round(temp);
+          pres = Math.floor((pres * 75006) / 100000);
+          visibility = Math.round(visibility * 100) / 100;
+          date = new Date(date)
 
-                <div className="bar cloudy">
-                    <div className="weather">
-                        <svg role="img">
-                            <use xlinkHref="#cloudy" width="264" height="166" viewBox="0 0 264 166"></use>
-                        </svg>
-                    </div>
-                    <div className="temperature">
-                        {i.temp}<span className="degrees">&deg;</span>
-                    </div>
-                    <div className="content">
-                        <div className="precipitation">
-                            <svg role="img" className="icon">
-                                <use xlinkHref="#precipitation"></use>
-                            </svg>
-                            {i.pop}%
-                        </div>
-                        <div className="low">
-                            <svg role="img" className="icon">
-                                <use xlinkHref="#low"></use>
-                            </svg>
-                            28&deg;
-                        </div>
-                    </div>
+          switch (date.getDay()) {
+            case 0:
+              dayName = "Воскресенье"
+              break;
+            case 1:
+              dayName = "Понедельник"
+              break;
+            case 2:
+              dayName = "Вторник"
+              break;
+            case 3:
+              dayName = "Среда"
+              break;
+            case 4:
+              dayName = "Четверг"
+              break;
+            case 5:
+              dayName = "Пятница"
+              break;
+            case 6:
+              dayName = "Суббота"
+              break;
+            default:
+              dayName = "ХЗдень"
+              break;
+          }
+          if (weatherCode >= 200 && weatherCode < 300) {
+            weatherType = 'stormy'
+          } else if (weatherCode >= 500 && weatherCode < 600) {
+            weatherType = 'rainy'
+          } else if (weatherCode >= 600 && weatherCode < 700 || weatherCode >= 300 && weatherCode < 400) {
+            weatherType = 'snowy'
+          } else if (weatherCode === 800) {
+            weatherType = 'sunny'
+          } else if (weatherCode >= 801 && weatherCode < 900) {
+            weatherType = 'partly-cloudy'
+          } else {
+            weatherType = 'cloudy'
+          }
+          console.log(weatherCode);
+          return (
+            <div className="day" key={num}>
+              <div className="day-of-week">{dayName}</div>
+              <div className="date">{date.getDate()}</div>
+
+              <div className={`bar ${weatherType}`}>
+                <div className="weather">
+                  <svg role="img">
+                    <use xlinkHref={`#${weatherType}`} width="264" height="166" viewBox="0 0 264 166"></use>
+                  </svg>
                 </div>
+                <div className="temperature">
+                  {temp}<span className="degrees">&deg;</span>
+                </div>
+                <div className="content">
+                  <div className="precipitation">
+                    {temp < 3
+                      ? <i className="bi bi-thermometer-snow" />
+                      : <i className="bi bi-umbrella" />
+                    }
+                    {rainChance}%
+                  </div>
+                  <div className="low">
+                    <i className="bi bi-arrows-collapse" />
+                    {pres} <sub style={{ fontSize: 0.7 + "rem" }}>mmhg</sub>
+                  </div>
+                  <div className="visibility">
+                    <i className="bi bi-binoculars"/>
+                    {visibility} Km
+                  </div>
+                </div>
+              </div>
             </div>
-        )
-        console.log(weatherArr);
+          )
+        })
+      )
     }
-    getWeather()
+  }
+
+  render() {
     return (
-        <>
-        {}
-        </>
-        // <div className="day">
-        //     <div className="day-of-week">Wed</div>
-        //     <div className="date">8</div>
-        //     <div className="bar cloudy">
-        //         <div className="weather">
-        //             <svg role="img">
-        //                 <use xlinkHref="#cloudy" width="264" height="166" viewBox="0 0 264 166"></use>
-        //             </svg>
-        //         </div>
-        //         <div className="temperature">
-        //             1<span className="degrees">&deg;</span>
-        //         </div>
-        //         <div className="content">
-        //             <div className="precipitation">
-        //                 <svg role="img" className="icon">
-        //                     <use xlinkHref="#precipitation"></use>
-        //                 </svg>
-        //                 2%
-        //             </div>
-        //             <div className="low">
-        //                 <svg role="img" className="icon">
-        //                     <use xlinkHref="#low"></use>
-        //                 </svg>
-        //                 28&deg;
-        //             </div>
-        //         </div>
-        //     </div>
-        // </div>
+      <>
+        {this.showWeather()}
+      </>
     )
-}
-
-function RenderWeather(props = 0) {
-    return (
-        <div>props:{props}</div>
-    )
-}
-
-class RecieveWeather extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            weather: []
-        };
-    }
-    // getWeather = async () => {
-    //     let responce = await fetch("https://api.weatherbit.io/v2.0/forecast/daily?lang=ru&days=10&city=Moscow,RU&key=b3e5096601344bde837e2aa622e5cb61")
-    //     let weather = await responce.json();
-    //     // this.setState({ weather: weather });
-    //     return weather.data.map((item, num) => {
-    //         const { valid_date: date, weather, temp, pop: rain } = item;
-    //         console.log(rain);
-    //         return (
-    //             <div className="day">
-    //                 <div className="day-of-week">Wed</div>
-    //                 <div className="date">8</div>
-
-    //                 <div className="bar cloudy">
-    //                     <div className="weather">
-    //                         <svg role="img">
-    //                             <use xlinkHref="#cloudy" width="264" height="166" viewBox="0 0 264 166"></use>
-    //                         </svg>
-    //                     </div>
-    //                     <div className="temperature">
-    //                         {temp}<span className="degrees">&deg;</span>
-    //                     </div>
-    //                     <div className="content">
-    //                         <div className="precipitation">
-    //                             <svg role="img" className="icon">
-    //                                 <use xlinkHref="#precipitation"></use>
-    //                             </svg>
-    //                             {rain}%
-    //                         </div>
-    //                         <div className="low">
-    //                             <svg role="img" className="icon">
-    //                                 <use xlinkHref="#low"></use>
-    //                             </svg>
-    //                             28&deg;
-    //                         </div>
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //         )
-    //     })
-    //     this.setState({ weatherArr: weatherArr })
-    //     console.log(weatherArr)
-    // }
-    // getWeather()
-    componentDidMount() {
-        fetch("https://api.weatherbit.io/v2.0/forecast/daily?lang=ru&days=10&city=Moscow,RU&key=b3e5096601344bde837e2aa622e5cb61")
-            .then(res => res.json())
-            .then(json => this.setState({weather:json.data}))
-        
-            // let weather = await responce.json();
-            // // this.setState({ weather: weather });
-            // return weather.data.map((item, num) => {
-            //     const { valid_date: date, weather, temp, pop: rain } = item;
-            //     console.log(rain);
-            //     return (
-            //         <div className="day">
-            //             <div className="day-of-week">Wed</div>
-            //             <div className="date">8</div>
-    
-            //             <div className="bar cloudy">
-            //                 <div className="weather">
-            //                     <svg role="img">
-            //                         <use xlinkHref="#cloudy" width="264" height="166" viewBox="0 0 264 166"></use>
-            //                     </svg>
-            //                 </div>
-            //                 <div className="temperature">
-            //                     {temp}<span className="degrees">&deg;</span>
-            //                 </div>
-            //                 <div className="content">
-            //                     <div className="precipitation">
-            //                         <svg role="img" className="icon">
-            //                             <use xlinkHref="#precipitation"></use>
-            //                         </svg>
-            //                         {rain}%
-            //                     </div>
-            //                     <div className="low">
-            //                         <svg role="img" className="icon">
-            //                             <use xlinkHref="#low"></use>
-            //                         </svg>
-            //                         28&deg;
-            //                     </div>
-            //                 </div>
-            //             </div>
-            //         </div>
-            //     )
-            // })
-            // this.setState({ weatherArr: weatherArr })
-            // console.log(weatherArr)
-    }
-    componentDidUpdate() {
-        console.log(this.state.weather);
-    }
-    
-    render() {
-        return (
-            <div>
-                <RenderWeather />
-                {/* {this.getWeather()} */}
-                <h1>Hello world!{console.log(this.state?.weather?.[0]?.pop)}</h1>
-            </div>
-            // <div className="day">
-            //     <div className="day-of-week">Wed</div>
-            //     <div className="date">8</div>
-
-            //     <div className="bar cloudy">
-            //         <div className="weather">
-            //             <svg role="img">
-            //                 <use xlinkHref="#cloudy" width="264" height="166" viewBox="0 0 264 166"></use>
-            //             </svg>
-            //         </div>
-            //         <div className="temperature">
-            //             72<span className="degrees">&deg;</span>
-            //         </div>
-            //         <div className="content">
-            //             <div className="precipitation">
-            //                 <svg role="img" className="icon">
-            //                     <use xlinkHref="#precipitation"></use>
-            //                 </svg>
-            //                 84%
-            //             </div>
-            //             <div className="low">
-            //                 <svg role="img" className="icon">
-            //                     <use xlinkHref="#low"></use>
-            //                 </svg>
-            //                 28&deg;
-            //             </div>
-            //         </div>
-            //     </div>
-            // </div>
-        )
-    }
+  }
 }
 ReactDOM.render(
-    <RecieveWeather />,
-    document.getElementById('react-weather')
+  <ShowWeather />,
+  document.querySelector('.wrapper')
 )

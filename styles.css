@@ -91,9 +91,9 @@ body {
 }
 
 .degrees {
-  position: absolute;
+  position: relative;
   font-size: 3rem;
-  top: 20px;
+  top: -65px;
 }
 
 .content {
@@ -140,7 +140,7 @@ body {
 }
 
 .snowy .weather {
-  left: -25px;
+  left: -45px;
   top: 20px;
 }
 
@@ -150,9 +150,16 @@ body {
 }
 
 .rainy .weather {
-  left: 31px;
+  left: -25px;
   top: -13px;
 }
 
-
-
+.bi {
+    font-size: 2rem;
+}
+.bi-arrows-collapse,
+.bi-binoculars {
+    position:relative;
+    top:5px;
+    right:5px;
+}
